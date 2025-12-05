@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор уроків для українських вчителів</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        .autocomplete {
+            position: relative;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 2px solid #3498db;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .autocomplete-item:hover {
+            background-color: #f1f8ff;
+        }
+        .autocomplete-item strong {
+            color: #3498db;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        .subject-hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🦉 Генератор плану уроку</h1>
+    <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">Для українських вчителів • Безкоштовно • Відповідно до НУШ</p>
+    
+    <form id="lessonForm">
+        <!-- Предмет з автодоповненням -->
+        <div class="form-group">
+            <label for="subjectInput">📚 Предмет:</label>
+            <div class="autocomplete">
+                <input type="text" id="subjectInput" 
+                       placeholder="Почніть вводити назву предмету..." 
+                       autocomplete="off" required>
+            </div>
+            <div class="subject-hint">Наберіть перші букви для пошуку предмету</div>
+        </div>
+        
+        <!-- Клас -->
+        <div class="form-group">
+            <label for="grade">🏫 Клас:</label>
+            <select id="grade" required>
+                <option value="">Оберіть клас</option>
+                <option value="1">1 клас</option>
+                <option value="2">2 клас</option>
+                <option value="3">3 клас</option>
+                <option value="4">4 клас</option>
+                <option value="5">5 клас</option>
+                <option value="6">6 клас</option>
+                <option value="7">7 клас</option>
+                <option value="8">8 клас</option>
+                <option value="9">9 клас</option>
+                <option value="10">10 клас</option>
+                <option value="11">11 клас</option>
+            </select>
+        </div>
+        
+        <!-- Тема уроку -->
+        <div class="form-group">
+            <label for="topic">🎯 Тема уроку:</label>
+            <input type="text" id="topic" 
+                   placeholder="Наприклад: 'Дроби', 'Фотосинтез у рослин'" 
+                   required>
+        </div>
+        
+        <button type="submit">⚡ Згенерувати план уроку</button>
+    </form>
+
+    <script>
+        // ПОВНИЙ список предметів
+        const subjects = [
+            "Українська мова і літературне читання",
+            "Українська мова і літературне навчання",
+            "Англійська мова",
+            "Математика",
+            "Я досліджую світ",
+            "Дизайн і технології",
+            "Мистецтво",
+            "Музичне мистецтво",
+            "Образотворче мистецтво",
+            "Фізична культура",
+            "Фізкультура",
+            "Інформатика",
+            "Українська мова",
+            "Українська література",
+            "Зарубіжна література",
+            "Історія України",
+            "Всесвітня історія",
+            "Історія (Вступ до історії)",
+            "Історія України та Всесвітня історія",
+            "Природознавство",
+            "Біологія",
+            "Географія",
+            "Фізика",
+            "Хімія",
+            "Алгебра",
+            "Геометрія",
+            "Основи здоров'я",
+            "Громадянська освіта",
+            "Захист України",
+            "Біологія і екологія",
+            "Фізика і астрономія",
+            "Астрономія",
+            "Фінансова грамотність",
+            "Економіка",
+            "Природничі науки",
+            "Німецька мова",
+            "Французька мова",
+            "Польська мова",
+            "Болгарська мова",
+            "Гагаузька мова",
+            "Мова іврит",
+            "Молдовська мова",
+            "Ромська мова",
+            "Російська мова",
+            "Румунська мова",
+            "Словацька мова",
+            "Трудове навчання",
+            "Технології",
+            "Основи правознавства",
+            "Правознавство"
+        ];
+
+        // Автодоповнення
+        const subjectInput = document.getElementById('subjectInput');
+        let autocompleteList = null;
+
+        subjectInput.addEventListener('input', function() {
+            const value = this.value.trim().toLowerCase();
+            closeAutocomplete();
+            
+            if (!value) return;
+            
+            const filtered = subjects.filter(subject => 
+                subject.toLowerCase().includes(value)
+            );
+            
+            if (filtered.length === 0) return;
+            
+            autocompleteList = document.createElement('div');
+            autocompleteList.className = 'autocomplete-items';
+            
+            filtered.forEach(subject => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                
+                const startIndex = subject.toLowerCase().indexOf(value);
+                const endIndex = startIndex + value.length;
+                
+                div.innerHTML = subject.substring(0, startIndex) + 
+                              '<strong>' + subject.substring(startIndex, endIndex) + '</strong>' +
+                              subject.substring(endIndex);
+                
+                div.addEventListener('click', function() {
+                    subjectInput.value = subject;
+                    closeAutocomplete();
+                });
+                
+                autocompleteList.appendChild(div);
+            });
+            
+            this.parentNode.appendChild(autocompleteList);
+        });
+
+        function closeAutocomplete() {
+            if (autocompleteList) {
+                autocompleteList.remove();
+                autocompleteList = null;
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target !== subjectInput) {
+                closeAutocomplete();
+            }
+        });
+
+        // Обробка форми - ПІДКЛЮЧЕННЯ ДО ТВОЄЇ GOOGLE FORMS
+        document.getElementById('lessonForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const subject = document.getElementById('subjectInput').value;
+            const grade = document.getElementById('grade').value;
+            const topic = document.getElementById('topic').value;
+            
+            if (!subject || !grade || !topic) {
+                alert('Будь ласка, заповніть всі поля!');
+                return;
+            }
+            
+            // ID форми та полів (вже знайдені)
+            const FORM_ID = '1FAIpQLScjCijzsHSdtFqzKLT7CeefrSd4oVUXbuH3yKpkEdYF7k0PPg';
+            const ENTRY_SUBJECT = 'entry.333555533';
+            const ENTRY_GRADE = 'entry.1501258882';
+            const ENTRY_TOPIC = 'entry.1297997008';
+            
+            // Формуємо посилання на заповнену форму
+            const formUrl = `https://docs.google.com/forms/d/e/${FORM_ID}/viewform?` +
+                           `usp=pp_url&` +
+                           `${ENTRY_SUBJECT}=${encodeURIComponent(subject)}&` +
+                           `${ENTRY_GRADE}=${grade}&` +
+                           `${ENTRY_TOPIC}=${encodeURIComponent(topic)}`;
+            
+            // Відкриваємо Google Forms з заповненими даними
+            window.open(formUrl, '_blank');
+            
+            // Очищуємо форму
+            this.reset();
+        });
+    </script>
+</body>
+</html>
