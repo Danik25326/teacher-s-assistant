@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор уроків для українських вчителів</title>
+    <style>
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Створити план уроку</h1>
+    
+    <form id="lessonForm">
+        <!-- Поле з автодоповненням -->
+        <div class="autocomplete">
+            <input type="text" id="subjectInput" placeholder="Почніть вводити назву предмету..." required>
+        </div>
+        
+        <br><br>
+        
+        <label for="grade">Клас:</label>
+        <select id="grade" required>
+            <option value="">Виберіть клас</option>
+            <option value="1">1 клас</option>
+            <option value="2">2 клас</option>
+            <option value="3">3 клас</option>
+            <option value="4">4 клас</option>
+            <option value="5">5 клас</option>
+            <option value="6">6 клас</option>
+            <option value="7">7 клас</option>
+            <option value="8">8 клас</option>
+            <option value="9">9 клас</option>
+            <option value="10">10 клас</option>
+            <option value="11">11 клас</option>
+        </select>
+        
+        <br><br>
+        
+        <label for="topic">Тема уроку:</label><br>
+        <input type="text" id="topic" placeholder="Наприклад: Фотосинтез у рослин" required style="width: 300px;">
+        
+        <br><br>
+        
+        <button type="submit">Згенерувати план уроку</button>
+    </form>
+
+    <script>
+        // Список предметів НУШ
+        const subjects = [
+            "Українська мова",
+            "Українська література",
+            "Англійська мова",
+            "Німецька мова",
+            "Французька мова",
+            "Іспанська мова",
+            "Польська мова",
+            "Математика",
+            "Інформатика",
+            "Природознавство",
+            "Біологія",
+            "Географія",
+            "Фізика",
+            "Хімія",
+            "Історія України",
+            "Всесвітня історія",
+            "Основи правознавства",
+            "Мистецтво",
+            "Музичне мистецтво",
+            "Образотворче мистецтво",
+            "Трудове навчання",
+            "Фізична культура",
+            "Основи здоров'я",
+            "Захист України",
+            "Етика",
+            "Я досліджую світ",
+            "Індивідуальний проєкт",
+            "Зарубіжна література"
+        ];
+
+        // Функція автодоповнення
+        function autocomplete(inp, arr) {
+            let currentFocus;
+            
+            inp.addEventListener("input", function(e) {
+                let val = this.value;
+                closeAllLists();
+                if (!val) return false;
+                currentFocus = -1;
+                
+                const list = document.createElement("DIV");
+                list.setAttribute("id", this.id + "autocomplete-list");
+                list.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(list);
+                
+                // Фільтруємо предмети
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                        const item = document.createElement("DIV");
+                        item.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        item.innerHTML += arr[i].substr(val.length);
+                        item.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        
+                        item.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        list.appendChild(item);
+                    }
+                }
+            });
+            
+            function closeAllLists(elmnt) {
+                const items = document.getElementsByClassName("autocomplete-items");
+                for (let i = 0; i < items.length; i++) {
+                    if (elmnt !== items[i] && elmnt !== inp) {
+                        items[i].parentNode.removeChild(items[i]);
+                    }
+                }
+            }
+            
+            document.addEventListener("click", function(e) {
+                closeAllLists(e.target);
+            });
+        }
+
+        // Ініціалізація автодоповнення
+        autocomplete(document.getElementById("subjectInput"), subjects);
+
+        // Обробка форми
+        document.getElementById("lessonForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            const subject = document.getElementById("subjectInput").value;
+            const grade = document.getElementById("grade").value;
+            const topic = document.getElementById("topic").value;
+            
+            alert(`Дані відправлено:\nПредмет: ${subject}\nКлас: ${grade}\nТема: ${topic}`);
+            
+            // Тут буде код для відправки на Google Apps Script
+            // Відкриваємо Google Form з заповненими даними
+            const googleFormUrl = `https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?usp=pp_url&entry.12345=${encodeURIComponent(subject)}&entry.67890=${grade}&entry.11111=${encodeURIComponent(topic)}`;
+            window.open(googleFormUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
